@@ -93,6 +93,28 @@ class ResumeVectorStore:
         results = self._resume_col.query(query_texts=[query], n_results=min(n_results, max(self._resume_col.count(), 1)))
         return results["documents"][0] if results["documents"] else []
 
+    def score_resume_relevance(self, query: str, n_results: int = 3) -> float:
+        """Return 0-1 semantic similarity score between query and indexed resume chunks.
+
+        Uses actual ChromaDB L2 distances on normalized vectors rather than chunk count,
+        so jobs semantically close to the resume score higher than unrelated ones.
+        """
+        count = self._resume_col.count()
+        if count == 0:
+            return 0.0
+        n = min(n_results, count)
+        results = self._resume_col.query(
+            query_texts=[query],
+            n_results=n,
+            include=["distances"],
+        )
+        distances = results.get("distances", [[]])[0]
+        if not distances:
+            return 0.0
+        avg_dist = sum(distances) / len(distances)
+        # L2 distance on normalized vectors: 0.0=identical, ~2.0=opposite
+        return round(max(0.0, 1.0 - avg_dist / 2.0), 4)
+
     def query_applications(self, query: str, n_results: int = 3) -> list[dict]:
         """Retrieve similar past applications with their outcomes."""
         count = self._app_col.count()

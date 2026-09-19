@@ -38,6 +38,7 @@ class CandidateProfile(BaseModel):
     target_roles: list[str] = Field(default_factory=list)
     target_locations: list[str] = Field(default_factory=list)
     target_salary_min: Optional[int] = None
+    max_job_age_days: int = Field(default=7, description="Only fetch jobs posted within this many days. Edit in candidate_profile.json to change.")
     resume_path: Optional[str] = None
     resume_text: Optional[str] = None  # Parsed text from resume
 

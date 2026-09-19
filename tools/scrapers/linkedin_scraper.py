@@ -24,9 +24,10 @@ class LinkedInScraper(BaseScraper):
         location: str,
         skills: list[str],
         max_results: int = 25,
+        max_days: int = 7,
     ) -> list[RawJob]:
         try:
-            return self._scrape_with_playwright(role, location, max_results)
+            return self._scrape_with_playwright(role, location, max_results, max_days)
         except ImportError:
             logger.warning("Playwright not installed. Skipping LinkedIn scrape.")
             return []
@@ -35,7 +36,7 @@ class LinkedInScraper(BaseScraper):
             return []
 
     def _scrape_with_playwright(
-        self, role: str, location: str, max_results: int
+        self, role: str, location: str, max_results: int, max_days: int = 7
     ) -> list[RawJob]:
         from playwright.sync_api import sync_playwright
         import urllib.parse
@@ -43,8 +44,8 @@ class LinkedInScraper(BaseScraper):
         query = urllib.parse.urlencode({
             "keywords": role,
             "location": location,
-            "f_TPR": "r604800",  # past week
-            "sortBy": "R",       # relevance
+            "f_TPR": f"r{max_days * 86400}",  # seconds window derived from max_days
+            "sortBy": "R",                      # relevance
         })
         url = f"{self.BASE_URL}?{query}"
         jobs: list[RawJob] = []

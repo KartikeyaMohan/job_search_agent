@@ -61,9 +61,8 @@ class ScoreAllJobsTool(BaseTool):
             # ATS scoring
             ats_result = score_resume_against_jd(resume_text, jd_text)
 
-            # RAG-based relevance: query resume for job-relevant experience
-            relevant_chunks = vs.query_resume(jd_text[:500], n_results=3)
-            rag_score = min(1.0, len(relevant_chunks) / 3.0) if relevant_chunks else 0.0
+            # RAG-based relevance: semantic similarity between job description and resume
+            rag_score = vs.score_resume_relevance(jd_text[:500], n_results=3)
 
             # Combined match score: 70% ATS + 30% RAG
             match_score = round(0.7 * ats_result.score + 0.3 * rag_score, 4)

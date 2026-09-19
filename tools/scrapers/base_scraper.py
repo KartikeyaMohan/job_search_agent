@@ -44,8 +44,9 @@ class BaseScraper(ABC):
         location: str,
         skills: list[str],
         max_results: int = 25,
+        max_days: int = 7,
     ) -> list[RawJob]:
-        """Return a list of raw job postings."""
+        """Return a list of raw job postings no older than max_days."""
 
     @staticmethod
     def _polite_delay(min_s: float = 1.5, max_s: float = 4.0) -> None:

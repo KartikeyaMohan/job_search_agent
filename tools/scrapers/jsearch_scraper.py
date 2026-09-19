@@ -21,12 +21,21 @@ JSEARCH_BASE = "https://jsearch.p.rapidapi.com"
 class JSearchScraper(BaseScraper):
     """Job search via JSearch RapidAPI (aggregates multiple job boards)."""
 
+    @staticmethod
+    def _days_to_date_posted(max_days: int) -> str:
+        if max_days <= 1:  return "today"
+        if max_days <= 3:  return "3days"
+        if max_days <= 7:  return "week"
+        if max_days <= 30: return "month"
+        return "all"
+
     def search(
         self,
         role: str,
         location: str,
         skills: list[str],
         max_results: int = 25,
+        max_days: int = 7,
     ) -> list[RawJob]:
         settings = get_settings()
         if not settings.rapidapi_key:
@@ -51,7 +60,7 @@ class JSearchScraper(BaseScraper):
                     "query": f"{query} in {location}" if location else query,
                     "page": str(page),
                     "num_pages": "1",
-                    "date_posted": "week",
+                    "date_posted": self._days_to_date_posted(max_days),
                 }
                 resp = requests.get(
                     f"{JSEARCH_BASE}/search",

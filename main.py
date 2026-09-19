@@ -153,6 +153,8 @@ def search(
     location: Annotated[Optional[str], typer.Option("--location", "-l", help="Target location")] = None,
     sources: Annotated[str, typer.Option(help="Comma-separated sources: jsearch,linkedin,wellfound")] = "jsearch,linkedin,wellfound",
     match: Annotated[bool, typer.Option("--match/--no-match", help="Also run matching after search")] = True,
+    fresh: Annotated[bool, typer.Option("--fresh/--no-fresh", help="Clear existing jobs before searching")] = False,
+    max_age_days: Annotated[Optional[int], typer.Option("--max-age-days", help="Override profile's max_job_age_days for this search")] = None,
 ):
     """Search for jobs across LinkedIn, Wellfound, and JSearch."""
     profile = _load_profile()
@@ -160,11 +162,18 @@ def search(
         console.print("[red]No profile found. Run 'python main.py init' first.[/red]")
         raise typer.Exit(1)
 
+    if fresh:
+        from database import get_db as _get_db
+        cleared = _get_db().clear_jobs()
+        console.print(f"[yellow]Cleared {cleared} existing jobs before new search.[/yellow]")
+
     # Override profile with CLI args
     if role:
         profile.target_roles = [r.strip() for r in role.split(",")]
     if location:
         profile.target_locations = [l.strip() for l in location.split(",")]
+    if max_age_days is not None:
+        profile.max_job_age_days = max_age_days
 
     source_list = [s.strip() for s in sources.split(",")]
 
@@ -206,6 +215,25 @@ def match():
     with console.status("[cyan]Running matching agent...[/cyan]"):
         result = orch.run_matching()
     console.print(result)
+
+
+# ── reset ─────────────────────────────────────────────────────────────────────
+
+@app.command()
+def reset(
+    yes: Annotated[bool, typer.Option("--yes", "-y", help="Skip confirmation prompt")] = False,
+):
+    """Clear all jobs, applications, and scores from the database."""
+    if not yes:
+        confirmed = Confirm.ask(
+            "[red]This deletes all jobs, applications, and feedback. Continue?[/red]"
+        )
+        if not confirmed:
+            raise typer.Exit(0)
+    from database import get_db as _get_db
+    count = _get_db().clear_jobs()
+    console.print(f"[green]Cleared {count} jobs and all associated data.[/green]")
+    console.print("[dim]Run 'python main.py search' to start fresh.[/dim]")
 
 
 # ── status / dashboard ────────────────────────────────────────────────────────
@@ -252,6 +280,7 @@ def status(
     table.add_column("ATS", justify="right", width=8)
     table.add_column("Source", style="dim", width=10)
     table.add_column("Status", width=12)
+    table.add_column("Apply", width=9)
 
     for job in jobs:
         app = db.get_application_by_job(job["id"])
@@ -283,6 +312,9 @@ def status(
         color = status_colors.get(app_status, "white")
         status_text = f"[{color}]{app_status}[/{color}]"
 
+        url = job.get("url", "")
+        url_cell = f"[link={url}]Apply →[/link]" if url else "[dim]—[/dim]"
+
         table.add_row(
             job["id"][:8],
             job["title"],
@@ -292,6 +324,7 @@ def status(
             ats_str,
             job.get("source", "—"),
             status_text,
+            url_cell,
         )
 
     console.print(table)

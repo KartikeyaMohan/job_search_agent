@@ -1,21 +1,49 @@
 {
-  "name": "Kartikeya Mohan",
-  "email": "kartikeyamohan@gmail.com",
-  "phone": "+919660395751",
-  "location": "Remote",
-  "linkedin_url": "https://www.linkedin.com/in/kartikeya-mohan",
-  "github_url": "https://github.com/KartikeyaMohan",
+  "name": "Ishanvi Mohan",
+  "email": "ishanvimohan@gmail.com",
+  "phone": null,
+  "location": "Hong Kong SAR",
+  "linkedin_url": "https://www.linkedin.com/in/ishanvi-mohan-51bba1140/",
+  "github_url": "https://github.com/ishanvi-mohan",
   "portfolio_url": null,
-  "summary": "",
+  "summary": "AI Platform Engineer with experience in building and scaling AI infrastructure, cloud-native applications, and distributed systems. Proven track record of improving platform performance, reducing latency, and delivering production-ready features across AI, backend, and cloud environments. Strong background in Python, TypeScript, AWS, FastAPI, and modern software engineering practices, supported by a Computer Engineering degree from the University of Hong Kong.",
   "experience": [],
   "education": [],
-  "skills": [],
-  "tech_stack": [],
+  "skills": [
+    "Python",
+    "JavaScript",
+    "TypeScript",
+    "SQL",
+    "Docker",
+    "GitHub"
+  ],
+  "tech_stack": [
+    "FastAPI",
+    "Node.js",
+    "MongoDB",
+    "Redis",
+    "AWS ECS",
+    "AWS SQS",
+    "AWS S3",
+    "AWS EC2",
+    "Cloudflare",
+    "Power BI"
+  ],
+  "max_job_age_days": 3,
   "certifications": [],
-  "years_of_experience": null,
-  "target_roles": [],
-  "target_locations": [],
+  "years_of_experience": 2,
+  "target_roles": [
+    "AI Engineer",
+    "Software Developer",
+    "Software Development Engineer",
+    "ML Engineer",
+    "Software Engineer"
+  ],
+  "target_locations": [
+    "Hong Kong SAR",
+    "Hong Kong"
+  ],
   "target_salary_min": null,
-  "resume_path": "",
-  "resume_text": ""
+  "resume_path": "data\\resumes\\Ishanvi_Mohan_CV.pdf",
+  "resume_text": "+852 5463 3789  |  ishanvimohan@gmail.com  |  linkedin.com/in/ishanvi-mohan  |  github.com/ishanvi-mohan \n\nIshanvi Mohan \n\nEDUCATION \n\nThe University of Hong Kong, Hong Kong SAR \nBachelor of Engineering, Major in Computer Engineering, Minor in Finance \nAwarded the Dean’s Award for Engineering Students 2020–2022  •  Upper Second Class Honours \n\nBrightlands School, Dehradun, India \nHigh School Diploma,  \nICSE 10th Grade Board Examinations: 98.25%  •  ISC 12th Grade Board Examinations: 99% \nSAT Subject Tests: Math II – 790; Physics – 800  •  National Merit Scholar \n\nTECHNICAL SKILLS \n\nProgramming Languages: Python, JavaScript, TypeScript, SQL, C, C++, Java, Bash, R \nFrameworks & Tools: FastAPI, Node.js, MongoDB, Redis, AWS, Cloudflare, Docker, Power BI, GitHub \nLanguages: English (proficient), Hindi (proficient), Cantonese (beginner) \n\nWORK EXPERIENCE \n\nSept 2020 – July 2024 \n\nMay 2009 – May 2020 \n\nNefertiti Limited \nAI Software Engineer | Python, FastAPI, TypeScript, Next.js, AWS, Redis, Celery, Docker, RunPod \n\nHong Kong SAR \nJuly 2024 - Present \n\n•  Owned and scaled AI infrastructure supporting 1.2M+ registered users, 6.4M+ generations, and 3,100+ MAU across AWS, \n\nRunPod, FastAPI, Redis, MongoDB, Docker, and Cloudflare. \n\n•  Reduced generation latency by 60–70% through GPU orchestration improvements, distributed inference architecture redesign, \n\nand migration of GPU workloads to a scalable cloud infrastructure. \n\n•  Improved infrastructure efficiency by 50%+ through storage optimization, queue redesign, automated lifecycle policies, and GPU \n\nworkload migration. \n\n•  Architected distributed AI inference and training pipelines using AWS SQS, Celery, Redis, and containerized GPU workers \n\nacross 5+ concurrent GPU pods, improving model training success rate from ~84% to >97% and eliminating manual pod \nrecovery through automated restart and dead-letter queue handling. \n\n•  Built and shipped 30+ product features and platform enhancements spanning AI model training, image generation workflows, \n\npayment integrations, monitoring systems, caching architecture, and internal administrative tooling. \n\nManulife Investment Management \nSoftware Development Intern | TypeScript, Nest.js, Node.js, REST APIs, PostgreSQL, Git, CI/CD \n\nHong Kong SAR \nJune 2023 – Sep 2023 \n•  Developed and maintained REST APIs in Nest.js/TypeScript across 3+ microservices for iFUNDS, a fund management platform \n\noperating across 8+ Asia-Pacific markets. \n\n•  Contributed to 7 production releases through full Agile sprint cycles: code review, version control, CI/CD, and retrospectives. \n\ndLab Asset Management \nData Analyst | Python, Power BI, SQL, pandas, NumPy \n\nHong Kong SAR \nApr 2023 – June 2023 \n\n•  Built Python-based risk assessment models informing asset allocation decisions across a ~$50M portfolio, contributing to an \n\nestimated 10–15% reduction in volatility exposure. \n\n•  Delivered 24 Power BI dashboards and 35 ad hoc reports for daily portfolio monitoring and client reporting. \n\nPROJECTS \nProject Name  \n\nLEADERSHIP & ACTIVITIES \n\nMusic Society, The University of Hong Kong \nVice Chairperson \n\nStudent Researcher \nCollaborated with Greenpeace, Philippines \nEngaged on renewable and sustainability sectors with special emphasis on business expansion plans. \n\nINTERESTS \n\nInstrumental music, Birdwatching, Long-distance running, International affairs, Horse Riding \n\n2022 – 2023 \n\n2022 \n\n \n \n \n \n \n \n\f"
 }

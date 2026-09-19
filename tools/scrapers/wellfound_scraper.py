@@ -22,6 +22,7 @@ class WellfoundScraper(BaseScraper):
         location: str,
         skills: list[str],
         max_results: int = 25,
+        max_days: int = 7,  # Wellfound has no URL-level date filter; param accepted for interface compliance
     ) -> list[RawJob]:
         try:
             return self._scrape_with_playwright(role, location, max_results)

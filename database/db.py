@@ -162,6 +162,15 @@ class Database:
         with self._session() as s:
             return s.query(JobRecord).count()
 
+    def clear_jobs(self) -> int:
+        """Delete all jobs and applications. Returns the number of jobs deleted."""
+        with self._session() as s:
+            count = s.query(JobRecord).count()
+            s.query(FeedbackRecord).delete()
+            s.query(ApplicationRecord).delete()
+            s.query(JobRecord).delete()
+            return count
+
     # ── Applications ─────────────────────────────────────────────────────────
 
     def upsert_application(self, app: dict) -> str:

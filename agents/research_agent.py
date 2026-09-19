@@ -1,5 +1,6 @@
 """Research Agent — discovers job postings from multiple sources."""
 import logging
+import re
 from typing import Any
 
 from crewai import Agent, Task
@@ -13,6 +14,38 @@ from tools.scrapers.base_scraper import RawJob
 from database import get_db
 
 logger = logging.getLogger(__name__)
+
+# Words that appear in virtually every engineering job title and carry no discriminating signal
+_GENERIC_ROLE_WORDS = frozenset({
+    "engineer", "developer", "senior", "junior", "lead", "staff", "principal",
+    "associate", "software", "specialist", "manager", "head", "director",
+    "architect", "consultant", "ii", "iii", "iv",
+})
+
+
+def _title_relevant_to_role(title: str, role: str) -> bool:
+    """Return True if the job title shares a meaningful keyword with the searched role."""
+    role_words = set(role.lower().split()) - _GENERIC_ROLE_WORDS
+    if not role_words:
+        return True  # Role is entirely generic; don't filter
+    title_lower = title.lower()
+    return any(
+        re.search(r"\b" + re.escape(word) + r"\b", title_lower)
+        for word in role_words
+    )
+
+
+def _location_relevant(job_location: str, target_location: str) -> bool:
+    """Return True if the job location matches the target or is remote."""
+    loc_lower = job_location.lower()
+    if "remote" in loc_lower:
+        return True
+    target_lower = target_location.lower()
+    if target_lower in ("remote", "anywhere", "worldwide", ""):
+        return True
+    # Match any significant word from the target location (len > 3 avoids noise like "san", "new")
+    target_words = [w for w in target_lower.split() if len(w) > 3]
+    return any(w in loc_lower for w in target_words)
 
 
 # ── Tool Input Schemas ────────────────────────────────────────────────────────
@@ -38,6 +71,10 @@ class SearchJobsTool(BaseTool):
     )
     args_schema: type[BaseModel] = JobSearchInput
 
+    def __init__(self, max_job_age_days: int = 7, **kwargs):
+        super().__init__(**kwargs)
+        self._max_job_age_days = max_job_age_days
+
     def _run(self, role: str, location: str, skills: list[str],
              max_results: int = 20, sources: list[str] = None) -> str:
         if sources is None:
@@ -55,11 +92,30 @@ class SearchJobsTool(BaseTool):
             if not scraper:
                 continue
             try:
-                jobs = scraper.search(role, location, skills, max_results=max_results)
+                jobs = scraper.search(role, location, skills, max_results=max_results, max_days=self._max_job_age_days)
                 all_jobs.extend(jobs)
                 logger.info(f"{source}: {len(jobs)} jobs found")
             except Exception as e:
                 logger.warning(f"{source} scraper error: {e}")
+
+        # Post-scrape filtering: drop jobs whose title doesn't match the searched role
+        # or whose location is unrelated to the target (LinkedIn's algorithm can return
+        # off-target results, e.g. Android jobs when searching for ML roles).
+        original_count = len(all_jobs)
+        title_filtered = [j for j in all_jobs if _title_relevant_to_role(j.title, role)]
+        if title_filtered:
+            all_jobs = title_filtered
+        else:
+            logger.warning("Title filter removed all results for role='%s'; using unfiltered", role)
+
+        if location.lower() not in ("remote", "anywhere", "worldwide", ""):
+            loc_filtered = [j for j in all_jobs if _location_relevant(j.location, location)]
+            if loc_filtered:
+                all_jobs = loc_filtered
+            else:
+                logger.warning("Location filter removed all results for location='%s'; skipping", location)
+
+        logger.info("Post-scrape filter: %d → %d jobs kept", original_count, len(all_jobs))
 
         # Save to DB and deduplicate by URL
         db = get_db()
@@ -97,7 +153,7 @@ class SearchJobsTool(BaseTool):
 
 # ── Agent Factory ─────────────────────────────────────────────────────────────
 
-def build_research_agent(llm) -> Agent:
+def build_research_agent(llm, profile: CandidateProfile) -> Agent:
     return Agent(
         role="Senior Job Research Specialist",
         goal=(
@@ -112,7 +168,7 @@ def build_research_agent(llm) -> Agent:
             "promising opportunities that others might miss. You always document your findings "
             "thoroughly for downstream analysis."
         ),
-        tools=[SearchJobsTool()],
+        tools=[SearchJobsTool(max_job_age_days=profile.max_job_age_days)],
         llm=llm,
         verbose=True,
         allow_delegation=False,
@@ -130,7 +186,8 @@ def build_research_task(agent: Agent, profile: CandidateProfile, sources: list[s
             f"**Target Roles:** {roles_str}\n"
             f"**Locations:** {locations_str}\n"
             f"**Key Skills:** {skills_str}\n"
-            f"**Years of Experience:** {profile.years_of_experience or 'Not specified'}\n\n"
+            f"**Years of Experience:** {profile.years_of_experience or 'Not specified'}\n"
+            f"**Max Job Age:** {profile.max_job_age_days} days\n\n"
             f"Search across these sources: {', '.join(sources)}.\n"
             f"For each target role and location combination, run a search. "
             f"Aim for at least {get_settings().max_jobs_per_source} results total.\n"

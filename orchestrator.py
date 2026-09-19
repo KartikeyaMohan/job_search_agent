@@ -73,7 +73,7 @@ class JobSearchOrchestrator:
 
         logger.info(f"Starting research stage with sources: {sources}")
 
-        agent = build_research_agent(self._llm)
+        agent = build_research_agent(self._llm, self.profile)
         task = build_research_task(agent, self.profile, sources)
 
         crew = Crew(
@@ -114,7 +114,7 @@ class JobSearchOrchestrator:
             if not self.settings.rapidapi_key:
                 sources = ["linkedin", "wellfound"]
 
-        research_agent = build_research_agent(self._llm)
+        research_agent = build_research_agent(self._llm, self.profile)
         matching_agent = build_matching_agent(self._llm, self.profile)
 
         research_task = build_research_task(research_agent, self.profile, sources)
